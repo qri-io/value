@@ -1,0 +1,45 @@
+version: '2'
+jobs:
+  build:
+    working_directory: /go/src/github.com/qri-io/value
+    docker:
+      - image: circleci/golang:latest
+        environment:
+          GO111MODULE: "on"
+          GOPROXY: "https://proxy.golang.org"
+          GOSUMDB: "off"
+    environment:
+      TEST_RESULTS: /tmp/test-results
+    # resource_class requires a paid circleci plan:
+    resource_class: medium+
+    steps:
+      - checkout
+      - run: mkdir -p $TEST_RESULTS
+      - restore_cache:
+          key: dependency-cache-{{ checksum "go.sum" }}
+      - run: 
+          name: Get CI Deps
+          command: go get github.com/jstemmer/go-junit-report golang.org/x/lint/golint
+      - run:
+          name: Lint
+          command: golint -set_exit_status ./...
+      - run:
+          name: Go Vet
+          command: go vet ./...
+      - run:
+          name: Run Tests
+          command: |
+            trap "go-junit-report <${TEST_RESULTS}/go-test.out > ${TEST_RESULTS}/go-test-report.xml" EXIT
+            make test | tee ${TEST_RESULTS}/go-test.out
+      - save_cache:
+          key: dependency-cache-{{ checksum "go.sum" }}
+          paths:
+            - /go/pkg/mod
+      - run:
+          name: Publish coverage info to codecov.io
+          command: bash <(curl -s https://codecov.io/bash)
+      - store_artifacts:
+          path: /tmp/test-results
+          destination: raw-test-output
+      - store_test_results:
+          path: /tmp/test-results
