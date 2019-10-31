@@ -43,7 +43,7 @@ type Value = interface{}
 // Resolver is an interface for retrieving the value a link points to
 // Resolver is not a value, it's an interface that link values depend on
 type Resolver interface {
-	Get(ctx context.Context, path string) (res Value, err error)
+	Resolve(ctx context.Context, l Link) (res Value, err error)
 }
 
 // Link is a complex value that points at the address of another value
@@ -76,6 +76,15 @@ func NewLink(path string) Link {
 	}
 }
 
+// NewResolvedLink constructs a pre-resolved link
+func NewResolvedLink(path string, v Value) Link {
+	return &link{
+		path:     path,
+		value:    v,
+		resolved: true,
+	}
+}
+
 // Path is the path this link points to
 func (l link) Path() string { return string(l.path) }
 
@@ -88,8 +97,8 @@ func (l *link) Resolved(v Value) {
 	l.resolved = true
 }
 
-// Map is an associative array value defined through behaviour
-// Map is the complex version of a map
+// Map is an associative-array value defined through behaviour, the complex
+// variation on a map
 type Map interface {
 	ValueForKey(key interface{}) (val Value, err error)
 	Iterate() Iterator

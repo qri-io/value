@@ -150,7 +150,7 @@ func (f fKeySelector) isSelector() {}
 func (f fKeySelector) apply(ctx context.Context, r value.Resolver, in interface{}) (out interface{}, err error) {
 
 	if link, ok := in.(value.Link); ok {
-		in, err = r.Get(ctx, link.Path())
+		in, err = r.Resolve(ctx, link)
 		if err != nil {
 			return nil, err
 		}
@@ -222,7 +222,7 @@ func (f fIndexSelector) isSelector() {}
 func (f fIndexSelector) apply(ctx context.Context, r value.Resolver, in interface{}) (out interface{}, err error) {
 
 	if link, ok := in.(value.Link); ok {
-		in, err = r.Get(ctx, link.Path())
+		in, err = r.Resolve(ctx, link)
 		if err != nil {
 			return nil, err
 		}
@@ -282,7 +282,7 @@ func (f fIterateAllSeletor) isSelector() {}
 
 func (f fIterateAllSeletor) apply(ctx context.Context, r value.Resolver, in interface{}) (out interface{}, err error) {
 	if link, ok := in.(value.Link); ok {
-		in, err = r.Get(ctx, link.Path())
+		in, err = r.Resolve(ctx, link)
 		if err != nil {
 			return nil, err
 		}
@@ -305,7 +305,7 @@ func (f *fIndexRangeSelector) isSelector() {}
 
 func (f *fIndexRangeSelector) apply(ctx context.Context, r value.Resolver, in interface{}) (out interface{}, err error) {
 	if link, ok := in.(value.Link); ok {
-		in, err = r.Get(ctx, link.Path())
+		in, err = r.Resolve(ctx, link)
 		if err != nil {
 			return nil, err
 		}
@@ -437,7 +437,7 @@ func (fSlice) isSelector() {}
 
 func (f fSlice) apply(ctx context.Context, r value.Resolver, in interface{}) (out interface{}, err error) {
 	if link, ok := in.(value.Link); ok {
-		in, err = r.Get(ctx, link.Path())
+		in, err = r.Resolve(ctx, link)
 		if err != nil {
 			return nil, err
 		}
